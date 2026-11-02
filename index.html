@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Mini aplikasi pembelajaran Digital Cerdas, Perempuan Berdaya: keamanan digital, literasi finansial, pemberdayaan UMKM, solidaritas digital, dan AI yang adil." />
+  <title>Digital Cerdas, Perempuan Berdaya | Mini Learning App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #24233a;
+      --muted: #5a5a70;
+      --paper: #ffffff;
+      --bg: #f7f6fb;
+      --line: #e9e6f0;
+      --purple: #7556d8;
+      --purple-dark: #5538b6;
+      --pink: #ee7197;
+      --coral: #ff927e;
+      --teal: #3c9d91;
+      --gold: #e7ad45;
+      --success: #23856f;
+      --danger: #c65369;
+      --shadow: 0 16px 48px rgba(51, 40, 91, .09);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 7% 4%, rgba(238,113,151,.09), transparent 25rem),
+        radial-gradient(circle at 96% 10%, rgba(117,86,216,.10), transparent 27rem),
+        var(--bg);
+      font-family: "Google Sans", "Google Sans Flex", "Product Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.62;
+    }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .topbar {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 18px; padding: 13px clamp(16px, 4vw, 54px);
+      background: rgba(255,255,255,.88); backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(230,226,239,.9);
+    }
+    .brand { display:flex; gap:12px; align-items:center; min-width:0; }
+    .brand-mark {
+      display:grid; place-items:center; width:42px; height:42px; border-radius:14px;
+      color:#fff; font-size:21px; font-weight:800;
+      background: linear-gradient(140deg, var(--purple), var(--pink));
+      box-shadow: 0 8px 18px rgba(117,86,216,.22);
+    }
+    .brand-title { font-weight:800; letter-spacing:-.03em; line-height:1.15; }
+    .brand-sub { display:block; font-size:11px; font-weight:600; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-top:4px; }
+    .top-right { display:flex; align-items:center; gap:12px; color:var(--muted); font-size:13px; }
+    .top-pill { padding:7px 12px; border:1px solid var(--line); background:#fff; border-radius:999px; white-space:nowrap; }
+    .app-shell { display:grid; grid-template-columns: 270px minmax(0,1fr); gap:26px; max-width:1440px; margin:28px auto; padding:0 clamp(14px,3vw,40px) 50px; }
+    .sidebar { align-self:start; position:sticky; top:88px; padding:20px; background:rgba(255,255,255,.9); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
+    .sidebar-label { margin:0 0 10px; color:var(--muted); font-size:10px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    .progress-wrap { padding:14px; margin-bottom:18px; border-radius:16px; background:#f8f6ff; }
+    .progress-top { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px; font-size:12px; font-weight:700; }
+    .progress-track { height:8px; overflow:hidden; border-radius:99px; background:#e8e2fa; }
+    .progress-fill { height:100%; width:0%; border-radius:99px; background:linear-gradient(90deg,var(--purple),var(--pink)); transition:width .3s ease; }
+    .nav-list { display:grid; gap:6px; }
+    .nav-item {
+      display:flex; gap:11px; align-items:center; width:100%; padding:11px 10px;
+      border:1px solid transparent; border-radius:13px; color:#55536c; background:transparent;
+      text-align:left; transition:.2s ease;
+    }
+    .nav-item:hover:not(:disabled) { background:#f7f4ff; color:var(--purple-dark); }
+    .nav-item.active { background:#f0ebff; border-color:#e5dcff; color:var(--purple-dark); font-weight:800; }
+    .nav-item:disabled { opacity:.42; cursor:not-allowed; }
+    .nav-number { display:grid; place-items:center; flex:0 0 28px; height:28px; border-radius:10px; background:#f0eef5; font-size:12px; font-weight:800; }
+    .nav-item.active .nav-number { color:#fff; background:var(--purple); }
+    .nav-item.done .nav-number { color:#fff; background:var(--success); }
+    .nav-label { font-size:13.5px; line-height:1.3; }
+    .nav-meta { display:block; font-size:11.5px; font-weight:500; color:var(--muted); margin-top:3px; }
+    .sidebar-note { margin-top:18px; padding-top:14px; border-top:1px solid var(--line); color:var(--muted); font-size:11px; }
+    .main { min-width:0; }
+    .screen { display:none; animation:rise .3s ease both; }
+    .screen.active { display:block; }
+    @keyframes rise { from {opacity:0; transform:translateY(8px)} to {opacity:1; transform:translateY(0)} }
+    .hero {
+      position:relative; overflow:hidden; padding:clamp(26px,5vw,58px); border-radius:28px;
+      color:#fff; background:linear-gradient(120deg,#5b45b7 0%,#8265dc 48%,#e87c9d 100%);
+      box-shadow:0 24px 60px rgba(92,68,173,.22);
+    }
+    .hero:before, .hero:after { content:""; position:absolute; border:1px solid rgba(255,255,255,.18); border-radius:50%; pointer-events:none; }
+    .hero:before { width:330px; height:330px; right:-100px; top:-140px; }
+    .hero:after { width:220px; height:220px; right:45px; bottom:-155px; }
+    .hero-content { position:relative; z-index:1; max-width:760px; }
+    .eyebrow { display:inline-flex; gap:8px; align-items:center; margin-bottom:15px; padding:7px 12px; border:1px solid rgba(255,255,255,.28); border-radius:99px; background:rgba(255,255,255,.12); font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    h1 { margin:0; font-size:clamp(34px,5.2vw,64px); line-height:1.04; letter-spacing:-.055em; }
+    .hero p { max-width:660px; margin:18px 0 0; color:rgba(255,255,255,.91); font-size:clamp(14px,1.4vw,17px); }
+    .hero .hero-quote { margin-top:23px; font-weight:700; color:#fff; }
+    .hero-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:28px; max-width:610px; }
+    .hero-stat { padding:13px 15px; border:1px solid rgba(255,255,255,.2); border-radius:15px; background:rgba(255,255,255,.11); }
+    .hero-stat strong { display:block; font-size:22px; line-height:1.2; }
+    .hero-stat span { display:block; margin-top:4px; color:rgba(255,255,255,.82); font-size:11px; }
+    .panel { margin-top:22px; padding:clamp(20px,3vw,32px); border:1px solid var(--line); border-radius:var(--radius); background:#fff; box-shadow:var(--shadow); }
+    .panel h2 { margin:0 0 8px; font-size:24px; letter-spacing:-.035em; line-height:1.2; }
+    .muted { color:var(--muted); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px; }
+    .field { display:grid; gap:7px; }
+    .field label { font-size:12px; font-weight:800; color:#55536c; }
+    .field input { width:100%; border:1px solid #ded9e9; border-radius:12px; padding:12px 14px; background:#fcfbff; color:var(--ink); outline:none; }
+    .field input:focus { border-color:var(--purple); box-shadow:0 0 0 3px rgba(117,86,216,.12); }
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:44px;
+      padding:11px 18px; border:0; border-radius:12px; background:var(--purple); color:#fff;
+      font-weight:800; font-size:13px; box-shadow:0 8px 18px rgba(117,86,216,.18); transition:.2s ease;
+    }
+    .btn:hover { background:var(--purple-dark); transform:translateY(-1px); }
+    .btn:disabled { opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn.secondary { color:#514b68; background:#f1eef7; box-shadow:none; }
+    .btn.secondary:hover { background:#e8e3f2; }
+    .btn.outline { color:var(--purple-dark); background:#fff; border:1px solid #dcd3fa; box-shadow:none; }
+    .btn.success { background:var(--success); box-shadow:0 8px 18px rgba(35,133,111,.16); }
+    .btn.danger { color:var(--danger); background:#fff2f4; box-shadow:none; }
+    .start-row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:18px; }
+    .notice { display:flex; gap:12px; align-items:flex-start; padding:15px 16px; margin-top:18px; border:1px solid #f2e4bd; border-radius:15px; color:#755b24; background:#fff9e9; font-size:12px; }
+    .notice strong { display:block; margin-bottom:2px; }
+    .section-head { display:flex; align-items:flex-start; justify-content:space-between; gap:15px; margin-bottom:20px; }
+    .section-kicker { display:inline-block; margin-bottom:7px; color:var(--purple); font-size:10px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; }
+    .section-head h2 { margin:0; font-size:clamp(25px,3vw,37px); letter-spacing:-.045em; line-height:1.12; }
+    .section-head p { max-width:680px; margin:9px 0 0; color:var(--muted); font-size:14px; }
+    .module-badge { flex:0 0 auto; display:grid; place-items:center; width:54px; height:54px; border-radius:17px; color:var(--purple); background:#f0ebff; font-size:24px; }
+    .content-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .content-card { padding:19px; border:1px solid var(--line); border-radius:17px; background:linear-gradient(180deg,#fff,#fdfcff); }
+    .content-card h3 { display:flex; gap:9px; align-items:center; margin:0 0 9px; font-size:15px; letter-spacing:-.02em; }
+    .content-card h3 .mini-icon { display:grid; place-items:center; width:28px; height:28px; flex:0 0 28px; border-radius:99px; background:#f1edff; color:var(--purple); font-size:14px; }
+    .content-card p { margin:7px 0; color:#4f4d63; font-size:15px; }
+    .content-card ul, .content-card ol { margin:9px 0 0; padding-left:18px; color:#4f4d63; font-size:15px; }
+    .content-card li { margin:5px 0; }
+    .content-card strong { color:#39364e; }
+    .content-card a { color:var(--purple-dark); font-weight:700; }
+    .content-card.wide { grid-column:1/-1; }
+    .highlight { padding:17px 19px; margin-top:15px; border-left:4px solid var(--pink); border-radius:0 14px 14px 0; background:#fff4f7; color:#6d4b5a; font-size:15px; }
+    .activity { margin-top:16px; padding:20px; border-radius:17px; background:#eff9f7; border:1px solid #d8efeb; }
+    .activity h3 { margin:0 0 7px; font-size:15px; color:#246b62; }
+    .activity p { margin:0; color:#47766f; font-size:15px; }
+    .activity textarea { width:100%; margin-top:9px; padding:11px 13px; border:1px solid #cfe6e2; border-radius:12px; font-size:15px; background:#fff; resize:vertical; }
+    .completion-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:15px 0 0; margin-top:17px; border-top:1px solid var(--line); }
+    .completion-state { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12px; }
+    .completion-state.done { color:var(--success); font-weight:800; }
+    .lesson-controls { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:18px; }
+    .step-indicator { color:var(--muted); font-size:11px; font-weight:700; }
+    .quiz-intro { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0 20px; }
+    .quiz-chip { padding:8px 11px; border-radius:99px; background:#f4f1fa; color:#625a7d; font-size:11px; font-weight:800; }
+    .question { padding:19px; margin:12px 0; border:1px solid var(--line); border-radius:16px; background:#fff; }
+    .question.missing { border-color:var(--danger); background:#fff8f9; }
+    .question h3 { margin:0 0 13px; font-size:14px; line-height:1.45; }
+    fieldset.question { min-width:0; }
+    legend.q-num { padding:0 4px; color:var(--purple); font-size:10px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; margin-bottom:5px; }
+    .options { display:grid; gap:8px; }
+    .option { display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid #ece9f2; border-radius:11px; cursor:pointer; color:#59566d; font-size:15px; transition:.15s; }
+    .option:hover { background:#faf8ff; border-color:#d8cff5; }
+    .option input { margin-top:3px; accent-color:var(--purple); }
+    .option.correct { border-color:#a7d9c9; background:#eef9f5; color:#236e5c; }
+    .option.incorrect { border-color:#f0b6c0; background:#fff2f4; color:#9d4858; }
+    .explanation { margin-top:10px; padding:10px 12px; border-radius:10px; background:#f8f7fb; color:#6c687d; font-size:13.5px; }
+    .result-hero { text-align:center; padding:35px 22px; border-radius:24px; color:#fff; background:linear-gradient(130deg,#3f9c8d,#65bba9); }
+    .result-hero.fail { background:linear-gradient(130deg,#d27b6e,#bd668b); }
+    .result-icon { display:grid; place-items:center; width:65px; height:65px; margin:0 auto 14px; border:1px solid rgba(255,255,255,.35); border-radius:22px; background:rgba(255,255,255,.15); font-size:30px; }
+    .result-hero h2 { margin:0; font-size:30px; letter-spacing:-.04em; }
+    .score { margin:12px 0 6px; font-size:52px; line-height:1; font-weight:900; letter-spacing:-.05em; }
+    .result-hero p { max-width:560px; margin:8px auto 0; color:rgba(255,255,255,.9); font-size:13px; }
+    .result-details { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:17px; }
+    .result-stat { padding:17px; border:1px solid var(--line); border-radius:15px; background:#fff; text-align:center; }
+    .result-stat strong { display:block; font-size:21px; }
+    .result-stat span { color:var(--muted); font-size:11px; }
+    .certificate-shell { padding:18px; border-radius:20px; background:#edeaf4; }
+    .certificate {
+      position:relative; overflow:hidden; min-height:550px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      padding:48px 55px; border:10px double #d4b86a; background:#fffdf8; text-align:center; color:#333047;
+    }
+    .certificate:before, .certificate:after { content:"✦"; position:absolute; color:#d9bd72; font-size:36px; }
+    .certificate:before { top:20px; left:25px; }
+    .certificate:after { bottom:20px; right:25px; }
+    .cert-topline { color:#9c7e35; font-size:11px; font-weight:900; letter-spacing:.27em; text-transform:uppercase; }
+    .cert-title { margin:12px 0 0; color:#4b3d78; font-family:inherit; font-size:clamp(33px,5vw,54px); line-height:1.1; }
+    .cert-subtitle { margin:9px 0 19px; color:#82745e; font-size:14px; letter-spacing:.08em; text-transform:uppercase; }
+    .cert-recipient { color:#8d805f; font-family:inherit; font-size:15px; font-style:italic; }
+    .cert-name { margin:9px 0 12px; padding:0 20px 8px; border-bottom:1px solid #d9c78e; color:#553d8d; font-family:inherit; font-size:clamp(27px,4vw,42px); font-weight:700; }
+    .cert-copy { max-width:690px; color:#666177; font-size:13px; }
+    .cert-course { margin:12px 0; color:#42375f; font-size:18px; font-weight:900; }
+    .cert-date { margin-top:14px; color:#6c657d; font-size:12px; }
+    .cert-footer { display:flex; justify-content:space-between; align-items:flex-end; gap:30px; width:100%; margin-top:38px; }
+    .cert-sign { width:220px; margin-top:46px; padding-top:9px; border-top:1px solid #b8ad91; color:#716a7e; font-size:11px; }
+    .cert-code { color:#9a8a61; font-size:10px; letter-spacing:.08em; }
+    .certificate-note { margin:13px 0 0; text-align:center; color:var(--muted); font-size:11px; }
+    .footer-controls { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:19px; }
+    .mini-footer { text-align:center; padding:20px; color:#9793a4; font-size:10px; }
+    .toast { position:fixed; right:22px; bottom:22px; z-index:100; max-width:340px; padding:13px 17px; border-radius:13px; color:#fff; background:#34314c; box-shadow:var(--shadow); font-size:12px; opacity:0; transform:translateY(10px); pointer-events:none; transition:.25s; }
+    .toast.show { opacity:1; transform:translateY(0); }
+    .hidden { display:none !important; }
+
+    .fbtn { border:1px solid var(--line); background:#fff; border-radius:999px; padding:6px 12px; font-weight:800; color:var(--purple-dark); }
+    .sim { margin-top:14px; padding:18px; border:1px dashed #cdbff3; border-radius:17px; background:#faf8ff; }
+    .sim h3 { margin:0 0 8px; font-size:15px; }
+    .sim .msg { padding:12px 14px; border-radius:12px; background:#fff; border:1px solid var(--line); font-size:15px; }
+    .sim .opts { display:grid; gap:8px; margin-top:11px; }
+    .sim .opts button { text-align:left; padding:11px 13px; border:1px solid #dcd3fa; border-radius:11px; background:#fff; font-size:14.5px; }
+    .sim .opts button:hover { background:#f3eeff; }
+    .sim-out { margin-top:11px; padding:11px 13px; border-radius:11px; font-size:14.5px; }
+    .sim-out.ok { background:#eef9f5; color:#236e5c; }
+    .sim-out.no { background:#fff2f4; color:#9d4858; }
+    .sim-out:empty { display:none; }
+    .chk label { display:flex; gap:10px; align-items:flex-start; margin:8px 0; font-size:15px; }
+    .chk input { margin-top:5px; accent-color:var(--purple); width:18px; height:18px; }
+    .chk-count { font-weight:800; color:var(--purple-dark); font-size:13px; }
+
+    html.big .content-card p, html.big .content-card ul, html.big .content-card ol, html.big .activity p, html.big .option, html.big .highlight, html.big .sim * { font-size:18.5px!important; }
+    html.big .section-head p { font-size:17px; }
+
+    :focus-visible { outline:3px solid var(--purple); outline-offset:2px; }
+
+    @media (max-width: 900px) {
+      .app-shell { grid-template-columns:1fr; margin-top:16px; }
+      .sidebar { position:static; padding:13px; }
+      .sidebar-label, .sidebar-note { display:none; }
+      .progress-wrap { margin-bottom:10px; }
+      .nav-list { display:flex; overflow-x:auto; padding-bottom:3px; }
+      .nav-item { min-width:155px; }
+    }
+    @media (max-width: 620px) {
+      .topbar { padding:10px 14px; }
+      .brand-mark { width:37px; height:37px; }
+      .top-right { gap:8px; }
+      .top-right .top-pill { display:none; }
+      .app-shell { padding:0 12px 30px; gap:14px; }
+      .hero { border-radius:22px; }
+      .hero-grid { grid-template-columns:1fr 1fr 1fr; gap:7px; }
+      .hero-stat { padding:10px; }
+      .hero-stat strong { font-size:18px; }
+      .hero-stat span { font-size:11px; }
+      .form-grid, .content-grid { grid-template-columns:1fr; }
+      .content-card.wide { grid-column:auto; }
+      .section-head { gap:8px; }
+      .module-badge { width:43px; height:43px; border-radius:13px; font-size:19px; }
+      .completion-row, .lesson-controls, .footer-controls { align-items:stretch; flex-direction:column; }
+      .lesson-controls .btn, .footer-controls .btn { width:100%; }
+      .result-details { grid-template-columns:1fr; }
+      .certificate { min-height:500px; padding:35px 20px; border-width:7px; }
+      .cert-footer { margin-top:26px; }
+      .cert-sign { width:150px; }
+    }
+    @media print {
+      @page { size: A4 landscape; margin: 0; }
+      body { background:#fff !important; }
+      body * { visibility:hidden !important; }
+      #certificate-screen, #certificate-screen * { visibility:visible !important; }
+      #certificate-screen { display:block !important; position:absolute !important; inset:0 !important; width:100% !important; margin:0 !important; padding:0 !important; }
+      #certificate-screen .panel, #certificate-screen .certificate-shell { margin:0 !important; padding:0 !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; background:#fff !important; }
+      #certificate-screen .certificate { display:flex !important; width:297mm !important; height:210mm !important; min-height:210mm !important; padding:18mm 22mm !important; border-width:8px !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      #certificate-screen .section-head, #certificate-screen .footer-controls, #certificate-screen .certificate-note { display:none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">✦</div>
+      <div><div class="brand-title">Digital Cerdas</div><span class="brand-sub">Perempuan Berdaya</span></div>
+    </div>
+    <div class="top-right"><span class="top-pill">Pembelajaran Mandiri</span><button class="fbtn" id="fontBtn" type="button" aria-label="Perbesar atau perkecil teks">Aa</button><span id="topProgress">0% selesai</span></div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navigasi pembelajaran">
+      <div class="progress-wrap">
+        <div class="progress-top"><span>Progres belajar</span><span id="progressText">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="muted" style="font-size:10px;margin-top:8px" id="progressDetail">0 dari 5 modul selesai</div>
+      </div>
+      <p class="sidebar-label">Jalur pembelajaran</p>
+      <nav class="nav-list" id="navList">
+        <button class="nav-item active" data-step="0"><span class="nav-number">⌂</span><span class="nav-label">Beranda<span class="nav-meta">Mulai belajar</span></span></button>
+        <button class="nav-item" data-step="1"><span class="nav-number">01</span><span class="nav-label">Aman di Ruang Digital<span class="nav-meta">Privasi & KBGO</span></span></button>
+        <button class="nav-item" data-step="2"><span class="nav-number">02</span><span class="nav-label">Finansial Digital<span class="nav-meta">Waspada & mandiri</span></span></button>
+        <button class="nav-item" data-step="3"><span class="nav-number">03</span><span class="nav-label">AI & UMKM Perempuan<span class="nav-meta">Bisnis dan platform digital</span></span></button>
+        <button class="nav-item" data-step="4"><span class="nav-number">04</span><span class="nav-label">Solidaritas Digital<span class="nav-meta">Jaringan & suara perempuan</span></span></button>
+        <button class="nav-item" data-step="5"><span class="nav-number">05</span><span class="nav-label">AI yang Adil<span class="nav-meta">Kesetaraan & etika</span></span></button>
+        <button class="nav-item" data-step="6" disabled><span class="nav-number">✓</span><span class="nav-label">Evaluasi Akhir<span class="nav-meta">15 pertanyaan</span></span></button>
+        <button class="nav-item" data-step="8" disabled><span class="nav-number">★</span><span class="nav-label">Sertifikat<span class="nav-meta">Cetak hasil belajar</span></span></button>
+      </nav>
+      <div class="sidebar-note">Selesaikan lima modul, kerjakan evaluasi, lalu cetak sertifikat penyelesaian belajar.</div>
+      <button class="btn danger" id="resetBtn" style="width:100%;margin-top:13px;min-height:38px;font-size:11px">↻ Reset Progres Belajar</button>
+    </aside>
+
+    <main class="main">
+      <section class="screen active" id="home-screen">
+        <div class="hero">
+          <div class="hero-content">
+            <div class="eyebrow">✦ Literasi Digital untuk Kehidupan & Kemandirian</div>
+            <h1>Digital Cerdas,<br>Perempuan Berdaya.</h1>
+            <p>Ruang belajar mandiri untuk membangun keamanan digital, kecakapan finansial, kreativitas usaha, solidaritas, dan masa depan teknologi yang lebih adil.</p>
+            <p class="hero-quote">“Berdaya di dunia nyata. Aman dan berdampak di ruang digital.”</p>
+            <div class="hero-grid">
+              <div class="hero-stat"><strong>05</strong><span>Modul pembelajaran</span></div>
+              <div class="hero-stat"><strong>15</strong><span>Soal evaluasi</span></div>
+              <div class="hero-stat"><strong>01</strong><span>Sertifikat digital</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Selamat datang, Perempuan Hebat!</h2>
+          <p class="muted" style="font-size:13px;margin:0">Isi identitas berikut sebelum memulai. Nama ini akan digunakan pada sertifikat setelah Anda menyelesaikan seluruh modul dan lulus evaluasi.</p>
+          <div class="form-grid" style="grid-template-columns:1fr">
+            <div class="field"><label for="learnerName">Nama lengkap peserta *</label><input id="learnerName" type="text" placeholder="Masukkan nama sesuai sertifikat" maxlength="80" autocomplete="name"></div>
+          </div>
+          <div class="start-row"><button class="btn" id="startBtn">Mulai Pembelajaran <span aria-hidden="true">→</span></button><span class="muted" style="font-size:11px">Progres tersimpan di browser perangkat ini.</span></div>
+          <div class="notice"><span aria-hidden="true">ⓘ</span><div><strong>Petunjuk penggunaan</strong>Pelajari setiap modul secara berurutan. Gunakan tombol Kembali dan Lanjut di bagian bawah materi. Setelah lima modul ditandai selesai, evaluasi akhir akan terbuka. Nilai kelulusan adalah minimal 70.</div></div>
+        </div>
+        <div class="panel">
+          <h2>Apa yang akan Anda pelajari?</h2>
+          <div class="content-grid" style="margin-top:16px">
+            <div class="content-card"><h3><span class="mini-icon">🛡️</span>Keamanan digital</h3><p>Mengenali KBGO, melindungi privasi, membangun ketahanan digital, dan mencari bantuan.</p></div>
+            <div class="content-card"><h3><span class="mini-icon">💳</span>Literasi finansial</h3><p>Mengenali investasi bodong dan pinjaman ilegal, mengamankan transaksi, serta merencanakan keuangan.</p></div>
+            <div class="content-card"><h3><span class="mini-icon">🚀</span>Pemberdayaan UMKM</h3><p>Memanfaatkan media sosial, marketplace, SEO, e-learning, dan AI generatif untuk usaha.</p></div>
+            <div class="content-card"><h3><span class="mini-icon">🤝</span>Solidaritas digital</h3><p>Membangun jaringan aman, komunikasi yang efektif, dan ruang digital yang inklusif.</p></div>
+            <div class="content-card wide"><h3><span class="mini-icon">⚖️</span>AI yang adil</h3><p>Memahami bias gender dalam AI dan memperkuat peran perempuan dalam pengembangan teknologi yang etis.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="module-screen">
+        <div class="panel" style="margin-top:0">
+          <div class="section-head">
+            <div><span class="section-kicker" id="moduleKicker">Modul 01</span><h2 id="moduleTitle"></h2><p id="moduleIntro"></p></div>
+            <div class="module-badge" id="moduleIcon">🛡️</div>
+          </div>
+          <div id="moduleContent"></div>
+          <div class="completion-row">
+            <div class="completion-state" id="completionState"><span>○</span><span>Modul belum ditandai selesai</span></div>
+            <button class="btn outline" id="markDoneBtn">Tandai Modul Selesai ✓</button>
+          </div>
+          <div class="lesson-controls">
+            <button class="btn secondary" id="backModuleBtn">← Kembali</button>
+            <span class="step-indicator" id="moduleStepIndicator">Modul 1 dari 5</span>
+            <button class="btn" id="nextModuleBtn">Lanjut →</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="quiz-screen">
+        <div class="panel" style="margin-top:0">
+          <div class="section-head"><div><span class="section-kicker">Evaluasi pembelajaran</span><h2>Uji Pemahaman Anda</h2><p>Jawab 15 pertanyaan (termasuk skenario) berdasarkan lima modul yang telah dipelajari. Pilih satu jawaban yang paling tepat untuk setiap pertanyaan.</p></div><div class="module-badge">✎</div></div>
+          <div class="quiz-intro"><span class="quiz-chip">15 soal (termasuk skenario)</span><span class="quiz-chip">Nilai maksimal 100</span><span class="quiz-chip">Batas lulus 70</span></div>
+          <form id="quizForm"><div id="questionsContainer"></div><div class="footer-controls"><button type="button" class="btn secondary" id="backQuizBtn">← Kembali ke Modul</button><button type="button" class="btn" id="submitQuizBtn">Kirim Jawaban & Lihat Nilai →</button></div></form>
+        </div>
+      </section>
+
+      <section class="screen" id="result-screen">
+        <div class="panel" style="margin-top:0">
+          <div class="result-hero" id="resultHero"><div class="result-icon" id="resultIcon">✓</div><h2 id="resultTitle">Evaluasi Selesai</h2><div class="score" id="resultScore">0</div><p id="resultMessage"></p></div>
+          <div class="result-details"><div class="result-stat"><strong id="correctCount">0/15</strong><span>Jawaban benar</span></div><div class="result-stat"><strong id="passStatus">Belum lulus</strong><span>Status evaluasi</span></div><div class="result-stat"><strong>70</strong><span>Nilai minimal</span></div></div>
+          <div id="resultReview" style="margin-top:20px"></div>
+          <div class="footer-controls"><button class="btn secondary" id="reviewModulesBtn">← Pelajari Kembali</button><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn outline" id="retryQuizBtn">Ulangi Evaluasi</button><button class="btn success hidden" id="getCertificateBtn">Lihat Sertifikat ★</button></div></div>
+        </div>
+      </section>
+
+      <section class="screen" id="certificate-screen">
+        <div class="panel" style="margin-top:0">
+          <div class="section-head"><div><span class="section-kicker">Pencapaian Anda</span><h2>Sertifikat Penyelesaian</h2><p>Selamat! Anda telah menyelesaikan seluruh modul dan memenuhi nilai kelulusan evaluasi.</p></div><div class="module-badge">🏅</div></div>
+          <div class="certificate-shell">
+            <div class="certificate" id="certificate">
+              <div class="cert-topline">Sertifikat Penyelesaian Pembelajaran</div>
+              <div class="cert-title">Certificate</div>
+              <div class="cert-subtitle">Digital Cerdas • Perempuan Berdaya</div>
+              <div class="cert-recipient">Diberikan dengan apresiasi kepada</div>
+              <div class="cert-name" id="certName">Nama Peserta</div>
+              <div class="cert-copy">Atas keberhasilan menyelesaikan lima modul pembelajaran mandiri dan evaluasi pada program:</div>
+              <div class="cert-course">DIGITAL CERDAS, PEREMPUAN BERDAYA</div>
+              <div class="cert-copy">Mencakup keamanan dan privasi digital, literasi finansial digital, pemberdayaan UMKM melalui AI dan platform digital, solidaritas digital, serta peran perempuan dalam membentuk AI yang adil.</div>
+              <div class="cert-date" id="certDate">Diberikan pada tanggal —</div>
+              <div class="cert-footer" style="justify-content:center;margin-top:40px;"><div class="cert-code" id="certCode">KODE: —</div></div>
+            </div>
+          </div>
+          <p class="certificate-note">Sertifikat dibuat secara lokal di perangkat peserta. Kode dihitung dari nama, tanggal kelulusan, dan nilai sehingga dapat dicocokkan untuk verifikasi autentisitas pembelajaran.</p>
+          <div class="footer-controls"><button class="btn secondary" id="backResultBtn">← Kembali ke Hasil</button><button class="btn success" id="printCertificateBtn">Cetak Sertifikat / Simpan PDF ⎙</button></div>
+        </div>
+      </section>
+      <div class="mini-footer">DIGITAL CERDAS • PEREMPUAN BERDAYA &nbsp;|&nbsp; BELAJAR • TERLINDUNGI • BERDAYA |&nbsp; © Agus Andira</div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const modules = [
+      {
+        title: 'Aman di Ruang Digital: Keamanan, Privasi, dan KBGO',
+        short: 'Aman di Ruang Digital', icon: '🛡️', intro: 'Kenali kekerasan berbasis gender online, pahami tanda-tandanya, dan bangun kebiasaan digital yang melindungi diri serta orang lain.',
+        content: `
+          <div class="content-grid">
+            <article class="content-card wide"><h3><span class="mini-icon">1</span>Bentuk-bentuk Kekerasan Berbasis Gender Online (KBGO)</h3><p>KBGO dapat muncul dalam berbagai bentuk. Mengenalinya adalah langkah pertama untuk melindungi diri.</p><ul><li><strong>Pelecehan online:</strong> pesan atau komentar yang menghina, merendahkan, mengancam, bersifat seksual, misoginis, atau body shaming; termasuk cyberstalking, penyebaran rumor, dan serangan kelompok (mobbing/trolling).</li><li><strong>Doxing:</strong> mencari dan menyebarkan informasi pribadi seperti alamat rumah, nomor telepon, tempat kerja, atau data keluarga tanpa persetujuan.</li><li><strong>Pornografi balas dendam (revenge porn):</strong> penyebaran gambar atau video intim tanpa persetujuan, sering untuk mempermalukan, memeras, atau menghukum korban.</li><li><strong>Impersonasi/peniruan identitas:</strong> memakai nama, foto, atau informasi orang lain untuk membuat akun palsu dan merugikan korban.</li><li><strong>Ancaman kekerasan seksual/fisik online:</strong> pesan atau komentar yang mengancam akan melakukan kekerasan secara langsung maupun tidak langsung.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">🔎</span>Tanda-tanda KBGO</h3><ul><li>Merasa tidak aman atau cemas ketika online.</li><li>Menghindari interaksi online maupun offline.</li><li>Perubahan perilaku: mengurangi unggahan, membatasi privasi, atau menghapus akun.</li><li>Muncul rasa marah, sedih, malu, takut, atau depresi.</li><li>Menerima pesan/konten tidak pantas atau menemukan data pribadi tersebar tanpa izin.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">🔐</span>Atur Privasi Media Sosial</h3><ul><li>Gunakan akun privat dan batasi siapa yang dapat melihat unggahan.</li><li>Jangan tampilkan alamat, nomor telepon, jadwal rutin, atau lokasi spesifik secara publik.</li><li>Periksa bio, daftar pengikut, pertemanan, tagging, dan mention.</li><li>Aktifkan verifikasi dua langkah (2FA).</li><li>Tinjau izin aplikasi pihak ketiga dan cabut akses yang tidak diperlukan.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">🧰</span>Bangun Ketahanan Digital</h3><ul><li>Gunakan kata sandi kuat dan unik untuk setiap akun.</li><li>Perbarui sistem operasi, browser, dan aplikasi secara berkala.</li><li>Pertimbangkan VPN saat menggunakan Wi-Fi publik dan cadangkan data penting.</li><li>Verifikasi informasi, waspadai phishing, dan pikirkan jejak digital sebelum mengunggah.</li><li>Siapkan kontak darurat dan daftar langkah tanggap insiden.</li><li>Jaga kesehatan emosional: batasi waktu layar dan cari dukungan saat tertekan.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">📣</span>Langkah Melaporkan KBGO</h3><ol><li>Kumpulkan screenshot yang memuat tanggal, waktu, dan nama pengguna; simpan URL serta kronologi kejadian.</li><li>Laporkan konten atau akun melalui fitur Report platform, atau hubungi administrator/moderator situs.</li><li>Untuk kasus serius/dugaan pidana, pertimbangkan pelaporan kepada pihak berwenang. Laporkan juga ke unit siber kepolisian (patrolisiber.id) dan Aduan Konten Komdigi (aduankonten.id).</li><li>Setelah bukti tersimpan dan laporan dilakukan, blokir akun pelaku.</li></ol></article>
+            <article class="content-card"><h3><span class="mini-icon">🤍</span>Dukungan dan Bantuan</h3><p>Jangan hadapi sendiri. Dukungan dapat berasal dari konselor/psikolog, keluarga dan teman tepercaya, komunitas, serta organisasi bantuan.</p><ul><li>SAFEnet</li><li>Komnas Perempuan</li><li>LBH APIK</li><li>Yayasan Pulih</li></ul><p><strong>Ingat:</strong> KBGO bukan salah korban. Pelaku bertanggung jawab atas tindakannya. Keselamatan adalah prioritas.</p></article>
+          </div>
+          <div class="highlight"><strong>Pesan kunci:</strong> Kenali tanda, lindungi data, simpan bukti, laporkan, blokir, dan cari dukungan. Jika ada ancaman fisik, segera menuju tempat aman dan hubungi pihak berwenang.</div>
+          <div class="activity"><h3>✍️ Praktik singkat</h3><p>Periksa satu akun media sosial Anda. Tinjau status privat, informasi pada bio, izin lokasi, pengikut yang tidak dikenal, pengaturan tagging, dan status 2FA. Tentukan satu pengaturan yang akan Anda perbaiki hari ini.</p></div>
+        `
+      },
+      {
+        title: 'Literasi Finansial Digital untuk Perempuan Berdaya',
+        short: 'Finansial Digital', icon: '💳', intro: 'Kenali penipuan investasi dan pinjaman online ilegal, lindungi transaksi digital, dan gunakan teknologi untuk merencanakan keuangan secara lebih terarah.',
+        content: `
+          <div class="content-grid">
+            <article class="content-card wide"><h3><span class="mini-icon">⚠️</span>Mengapa perlu waspada?</h3><p>Penipu dapat membangun kedekatan palsu melalui media sosial dan aplikasi pesan, memancing empati, atau menyebarkan informasi menyesatkan. Iklan dan perbandingan gaya hidup digital juga dapat mendorong keputusan finansial terburu-buru. Akrab dengan gawai tidak otomatis berarti memahami risiko keamanan dan produk keuangan.</p></article>
+            <article class="content-card"><h3><span class="mini-icon">📈</span>Ciri Penipuan Investasi Online</h3><ul><li>Menjanjikan keuntungan tetap sangat tinggi tanpa risiko atau modal kembali 100%.</li><li>Menggunakan skema Ponzi/piramida: dana investor baru membayar investor lama dan mendorong perekrutan anggota.</li><li>Legalitas OJK/Bappebti tidak jelas atau memakai logo lembaga besar secara palsu.</li><li>Mendesak transfer dengan alasan promo terbatas atau kesempatan langka.</li><li>Memakai tokoh publik, influencer, testimoni, atau grup investor palsu.</li><li>Tidak transparan tentang produk, pengelola dana, risiko, dan kontrak.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">📲</span>Ciri Pinjaman Online Ilegal</h3><ul><li>Tidak terdaftar atau tidak diawasi OJK.</li><li>Bunga dan denda sangat tinggi serta tidak transparan.</li><li>Pencairan sangat mudah tanpa verifikasi memadai.</li><li>Meminta akses berlebihan ke kontak, galeri, pesan, dan data ponsel.</li><li>Penagihan kasar, intimidasi, atau menyebarkan data pribadi.</li><li>Tidak memiliki alamat kantor dan layanan pengaduan yang jelas.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">✅</span>Prinsip Pencegahan</h3><ul><li>Riset perusahaan dan produk; periksa legalitas melalui kanal resmi OJK atau Bappebti.</li><li>Jangan percaya janji keuntungan tidak wajar dan jangan terburu-buru karena tekanan digital.</li><li>Jangan izinkan akses data ponsel yang berlebihan.</li><li>Baca syarat, bunga, denda, dan biaya; pinjam sesuai kemampuan bayar.</li><li>Diskusikan keputusan dengan orang tepercaya dan diversifikasikan investasi.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">🧾</span>Jika Menjadi Korban</h3><ol><li>Kumpulkan screenshot chat, bukti transfer, nomor telepon, akun, URL, dan nama aplikasi.</li><li>Laporkan kepada kepolisian, OJK, penyedia platform, atau kanal konten yang relevan.</li><li>Putuskan komunikasi dan blokir kontak pelaku.</li><li>Ganti kata sandi email, media sosial, mobile banking, dan e-wallet; aktifkan 2FA.</li><li>Informasikan orang terdekat dan cari dukungan psikologis bila dibutuhkan.</li></ol><p class="muted">Kanal pelaporan resmi antara lain OJK 157, konsumen@ojk.go.id, patrolisiber.id/Dumas Presisi, dan aduankonten.id. Periksa kembali kanal resmi dan kontak terbaru sebelum menggunakannya.</p></article>
+            <article class="content-card"><h3><span class="mini-icon">🏦</span>Keamanan Transaksi Digital</h3><ul><li>Buat kata sandi panjang (minimal 12–16 karakter; lebih baik berupa kalimat sandi/passphrase yang disimpan di pengelola kata sandi), unik, dan tidak mudah ditebak.</li><li>Aktifkan 2FA pada email, bank, dan platform transaksi.</li><li>Waspadai phishing (email/situs palsu) dan smishing (SMS palsu).</li><li>Periksa alamat situs dan koneksi HTTPS; hindari transaksi finansial melalui Wi-Fi publik tidak aman.</li><li>Perbarui aplikasi, pantau mutasi dan notifikasi transaksi.</li><li>Jangan bagikan PIN, OTP, atau kata sandi kepada siapa pun.</li><li>Unduh aplikasi keuangan dari toko aplikasi resmi dan periksa pengembangnya.</li></ul></article>
+            <article class="content-card wide"><h3><span class="mini-icon">📊</span>Perencanaan dan Inklusi Finansial Digital</h3><p>Alat digital dapat membantu pencatatan otomatis, visualisasi laporan, pengingat tagihan, pemantauan tujuan, dan akses produk investasi formal. Contohnya aplikasi pencatat keuangan, mobile banking, spreadsheet online (Google Sheets/Excel Online), dan aplikasi investasi yang terdaftar serta diawasi sesuai ketentuan.</p><ul><li>Pilih aplikasi yang reputasinya baik dan memiliki fitur keamanan yang kuat.</li><li>Pahami integrasi rekening serta kebijakan privasi data.</li><li>Catat pengeluaran tunai, buat anggaran, tinjau laporan, dan tetapkan tujuan terukur.</li><li>Jaga kata sandi, aktifkan 2FA, dan jangan berbagi informasi login.</li></ul><p>Inklusi finansial berarti akses produk dan layanan keuangan yang bermanfaat dan terjangkau bagi semua. Akses digital yang adil dapat mendukung kemandirian ekonomi perempuan, UMKM, pengelolaan keuangan keluarga, dan perlindungan dari penipuan.</p></article>
+          </div>
+          <div class="highlight"><strong>Pesan kunci:</strong> Utamakan keamanan dan legalitas. Keuntungan tinggi selalu perlu ditelaah risikonya; jangan serahkan PIN, OTP, atau akses data ponsel secara sembarangan.</div>
+          <div class="activity"><h3>✍️ Praktik singkat</h3><p>Buat daftar tiga tujuan keuangan, misalnya dana darurat, pendidikan, atau modal usaha. Tentukan target nominal dan waktu, lalu pilih alat pencatatan yang aman untuk memantau pemasukan serta pengeluaran.</p></div>
+        `
+      },
+      {
+        title: 'Memanfaatkan AI & Platform Digital untuk Pemberdayaan UMKM Perempuan',
+        short: 'AI & UMKM Perempuan', icon: '🚀', intro: 'Gunakan platform digital dan AI generatif untuk memperluas pasar, membuat konten, melayani pelanggan, serta mengambil keputusan usaha berbasis data.',
+        content: `
+          <div class="content-grid">
+            <article class="content-card wide"><h3><span class="mini-icon">🌱</span>Manfaat AI dan Platform Digital</h3><ul><li><strong>Jangkauan pasar:</strong> produk dapat ditemukan melampaui batas geografis.</li><li><strong>Efisiensi:</strong> pemasaran digital dan AI dapat menghemat biaya serta sumber daya.</li><li><strong>Fleksibilitas:</strong> bisnis daring membantu pengelolaan waktu dan tempat.</li><li><strong>Komunitas:</strong> interaksi langsung memperkuat hubungan dengan pelanggan dan sesama pengusaha.</li><li><strong>Keputusan berbasis data:</strong> analitik membantu mengukur kinerja serta menemukan peluang.</li><li><strong>Visibilitas:</strong> kehadiran online profesional dapat memperkuat citra merek dan pengusaha perempuan.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">📱</span>Strategi Media Sosial</h3><p>Pilih platform berdasarkan kebiasaan audiens: Instagram/TikTok untuk visual dan tren, Facebook untuk komunitas, WhatsApp Business untuk komunikasi personal.</p><ul><li>Tampilkan visual autentik dan kisah di balik produk.</li><li>Buat konten edukatif dan inspiratif.</li><li>Aktifkan dialog melalui pertanyaan, polling, live, komentar, dan pesan.</li><li>Gunakan hashtag serta tren yang relevan. Iklan berbayar bersifat opsional.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">📝</span>Content & WhatsApp Marketing</h3><p>Content marketing memberi nilai melalui blog/artikel, video pendek/Reels, infografis, e-book, dan panduan gratis.</p><p>Untuk WhatsApp Business, lengkapi profil bisnis, katalog produk, pesan otomatis, dan balasan cepat. Gunakan broadcast secara bijak dan tidak berlebihan; grup komunitas bersifat opsional.</p></article>
+            <article class="content-card"><h3><span class="mini-icon">🛍️</span>E-commerce & Marketplace</h3><p>Marketplace seperti Tokopedia, Shopee, dan Bukalapak memberi akses ke basis pengguna yang sudah ada. Optimalkan deskripsi produk, foto, dan program promosi.</p><p>Website sendiri memberi kontrol lebih besar terhadap merek, pengalaman pelanggan, dan data. Pastikan pembelian mudah, aman, transparan, dan didukung layanan pelanggan yang responsif.</p></article>
+            <article class="content-card"><h3><span class="mini-icon">🔍</span>Optimasi Mesin Pencari (SEO)</h3><ul><li>Riset kata kunci yang digunakan target audiens.</li><li>Buat konten berkualitas yang secara alami memuat kata kunci.</li><li>Pastikan situs ramah ponsel, cepat, dan memiliki struktur jelas.</li><li>Beri nama file gambar yang deskriptif dan tambahkan alt text.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">✨</span>Apa Itu AI Generatif?</h3><p>AI generatif mampu membuat konten baru berupa teks, gambar, video, audio, atau kode. Contohnya model bahasa seperti Gemini atau ChatGPT dan model gambar seperti DALL-E atau Midjourney.</p><p>AI dapat membantu membuat ide, caption, deskripsi produk, skrip video, visual sederhana, variasi iklan, personalisasi pesan, chatbot, dan analisis sentimen.</p></article>
+            <article class="content-card wide"><h3><span class="mini-icon">🧭</span>Gunakan AI secara Bertanggung Jawab</h3><ol><li>Pilih alat AI yang relevan dengan kebutuhan usaha.</li><li>Ingat bahwa AI adalah alat bantu, bukan pengganti kreativitas dan penilaian manusia.</li><li>Eksperimen dengan prompt dan perbaiki hasilnya.</li><li>Periksa kualitas, relevansi, orisinalitas, dan hak cipta.</li><li>Pertimbangkan etika, transparansi, dan bias.</li></ol><p>Mulai pemasaran digital dengan menetapkan tujuan, mengenali target pasar, memilih platform, membuat konten berkualitas, membangun interaksi, lalu memantau dan mengevaluasi hasil.</p></article>
+            <article class="content-card"><h3><span class="mini-icon">🎓</span>E-learning & AI sebagai Asisten</h3><p>Platform e-learning memberi akses pengetahuan dan fleksibilitas belajar. AI dapat membantu menjelaskan konsep sulit, memberi ide, membuat latihan/studi kasus, memberi umpan balik pada draf, serta menerjemahkan atau menyesuaikan materi. Segera praktikkan keterampilan yang dipelajari pada operasional UMKM.</p></article>
+            <article class="content-card"><h3><span class="mini-icon">🤝</span>Jaringan Profesional</h3><p>Komunitas daring menyediakan dukungan, pertukaran pengalaman, kolaborasi, akses tren, dan peluang pelanggan. Bangun jejaring melalui grup UMKM/perempuan pengusaha, LinkedIn, webinar, forum niche, atau komunitas kursus.</p><p>Aktif berkontribusi, tulus, fokus memberi nilai, tawarkan bantuan, tindak lanjuti koneksi, dan hargai waktu orang lain.</p></article>
+            <article class="content-card wide"><h3><span class="mini-icon">💡</span>Konten Positif dan Kreatif</h3><p>Konten positif membangun koneksi emosional, engagement, reputasi, jangkauan organik, dan diferensiasi. Ide konten antara lain kisah sukses pelanggan, behind-the-scenes, tips, motivasi, edukasi menyenangkan, tantangan positif, kolaborasi influencer yang sejalan, cerita dampak sosial/lingkungan, dan humor yang relevan. Kenali audiens, adaptasi tren sesuai nilai merek, gunakan beragam format, storytelling, ajak audiens terlibat, belajar dari kreator lain, bereksperimen, dan manfaatkan alat bantu digital seperti Canva, CapCut, atau AI generatif.</p></article>
+          </div>
+          <div class="highlight"><strong>Pesan kunci:</strong> Mulailah dari kebutuhan pelanggan dan tujuan usaha. Pilih platform yang tepat, buat konten yang memberi nilai, gunakan AI sebagai pendamping, lalu ukur dan perbaiki hasil secara konsisten.</div>
+          <div class="activity"><h3>✍️ Praktik singkat</h3><p>Rancang satu konten promosi untuk produk Anda: tentukan siapa audiensnya, platform yang digunakan, pesan utama, format (foto/video/carousel), dan ajakan bertindak. Anda boleh memakai AI untuk membuat draf, tetapi periksa serta sunting hasilnya sebelum dipublikasikan.</p></div>
+        `
+      },
+      {
+        title: 'Membangun Jaringan Aman & Suara Perempuan di Ruang Digital',
+        short: 'Solidaritas Digital', icon: '🤝', intro: 'Bangun solidaritas digital melalui ruang aman, dukungan timbal balik, advokasi, komunikasi yang efektif, dan penghormatan terhadap keberagaman.',
+        content: `
+          <div class="content-grid">
+            <article class="content-card wide"><h3><span class="mini-icon">💜</span>Mengapa Solidaritas Digital Penting?</h3><p>Solidaritas digital adalah dukungan timbal balik, kolaborasi strategis, dan advokasi perempuan untuk perempuan lain. Tujuannya menciptakan ruang online yang aman, inklusif, dan memberdayakan.</p><ul><li>Menciptakan ruang aman dan saling melindungi dari pelecehan.</li><li>Memberi dukungan emosional dan merayakan pencapaian.</li><li>Memperkuat advokasi dan perubahan sosial.</li><li>Berbagi pengetahuan serta keterampilan.</li><li>Melawan misinformasi dan stereotip melalui fakta.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">⚡</span>Tantangan Solidaritas</h3><ul><li>Pelecehan, doxing, dan ancaman kepada perempuan yang vokal.</li><li>Misinformasi dan kampanye hitam yang merusak kepercayaan.</li><li>Kesenjangan akses teknologi dan literasi digital.</li><li>Kelelahan digital akibat paparan isu negatif dan perdebatan terus-menerus.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">🌐</span>Praktik Solidaritas Sehari-hari</h3><ul><li>Dukung dan sebarkan konten positif.</li><li>Laporkan pelecehan atau konten berbahaya.</li><li>Validasi pengalaman dan berikan dukungan moral.</li><li>Edukasi diri dan orang lain; ikut kampanye relevan.</li><li>Berinteraksi secara konstruktif dan verifikasi informasi.</li><li>Jaga privasi serta keamanan; jadilah mentor digital.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">🗣️</span>Komunikasi yang Efektif</h3><ol><li>Sampaikan satu atau dua pesan utama secara jelas dan ringkas.</li><li>Sesuaikan format dengan platform: visual, blog, video, stories, reels, atau forum.</li><li>Gunakan narasi personal dengan persetujuan dan perlindungan privasi.</li><li>Bangun kolaborasi dan jaringan pendukung.</li><li>Pilih visual yang informatif dan inklusif.</li><li>Ajak dialog dua arah melalui pertanyaan, polling, dan respons komentar.</li><li>Jaga konsistensi pesan dan kalender konten.</li><li>Siapkan perlindungan privasi/enkripsi serta strategi menghadapi serangan online.</li></ol></article>
+            <article class="content-card"><h3><span class="mini-icon">🫶</span>Mendorong Perempuan Bersuara</h3><ul><li>Bangun kepercayaan diri melalui literasi digital dan keamanan online.</li><li>Ciptakan ruang aman dengan moderasi dan pedoman komunitas yang jelas.</li><li>Sediakan forum, webinar, sesi tanya jawab, dan kesempatan menjadi pembicara.</li><li>Normalisasi perbedaan pendapat dan kritik yang konstruktif.</li><li>Sediakan mekanisme pelaporan dan dukungan ketika terjadi pelecehan.</li><li>Tampilkan panutan dan contoh dampak positif partisipasi.</li></ul></article>
+            <article class="content-card wide"><h3><span class="mini-icon">⚖️</span>Toleransi dan Kemanusiaan yang Adil dan Beradab</h3><p>Solidaritas yang kuat menghormati perbedaan latar belakang, pengalaman, pandangan, dan identitas. Praktiknya meliputi mendengarkan secara aktif, menghindari penghakiman, menunjukkan empati, menolak diskriminasi, memperjuangkan keadilan sosial, dan menjaga komunikasi tetap sopan serta konstruktif.</p><p>Bangun jembatan melalui dialog terbuka, fokus pada tujuan bersama, dan beri ruang untuk belajar dari kesalahan. Lindungi martabat setiap perempuan; tolak pelecehan, doxing, dan perlakuan tidak manusiawi.</p></article>
+          </div>
+          <div class="highlight"><strong>Pesan kunci:</strong> Jangan hanya menjadi penonton. Dukung, lindungi, edukasi, dan amplifikasi suara perempuan dengan tetap menjaga keselamatan, privasi, empati, dan etika digital.</div>
+          <div class="activity"><h3>✍️ Praktik singkat</h3><p>Tuliskan satu tindakan solidaritas digital yang dapat dilakukan minggu ini, misalnya membagikan sumber tepercaya, membantu anggota komunitas mengatur privasi, mendukung karya perempuan, atau menjadi moderator diskusi yang aman.</p></div>
+        `
+      },
+      {
+        title: 'Peran Perempuan dalam Membentuk AI yang Adil',
+        short: 'AI yang Adil', icon: '⚖️', intro: 'Pahami bagaimana bias gender muncul dalam sistem AI, dampaknya terhadap kehidupan perempuan, serta kontribusi perempuan dalam membangun teknologi yang etis dan inklusif.',
+        content: `
+          <div class="content-grid">
+            <article class="content-card wide"><h3><span class="mini-icon">🧠</span>Apa Itu Bias Gender dalam AI?</h3><p>Bias gender terjadi ketika sistem AI menghasilkan keluaran yang secara sistematis lebih menguntungkan atau merugikan satu jenis kelamin dibandingkan yang lain. Bias dapat berasal dari tiga sumber utama:</p><ol><li><strong>Data pelatihan yang bias:</strong> data tidak representatif atau mencerminkan bias sosial yang sudah ada.</li><li><strong>Algoritma yang bias:</strong> keputusan desain dan parameter dapat memperkenalkan bias.</li><li><strong>Bias manusia:</strong> asumsi pengembang memengaruhi pemilihan fitur, pelabelan data, dan evaluasi kinerja.</li></ol></article>
+            <article class="content-card"><h3><span class="mini-icon">👁️</span>Contoh: Pengenalan Wajah</h3><p>Sebagian sistem pengenalan wajah memiliki akurasi lebih rendah untuk perempuan, terutama perempuan berkulit gelap. Salah satu penyebab yang disebut adalah data pelatihan yang didominasi wajah laki-laki kulit putih.</p><p>Dampaknya dapat berupa salah identifikasi, kesulitan membuka perangkat, atau pengawasan yang tidak adil.</p></article>
+            <article class="content-card"><h3><span class="mini-icon">🎙️</span>Contoh: Asisten Suara</h3><p>Suara default perempuan dapat memperkuat stereotip bahwa perempuan adalah pembantu/sekretaris. Respons pasif terhadap pelecehan dan akurasi pengenalan aksen atau pola bicara perempuan yang lebih rendah juga menjadi contoh masalah yang dibahas.</p></article>
+            <article class="content-card"><h3><span class="mini-icon">💼</span>Contoh di Layanan Digital</h3><ul><li>Alat rekrutmen AI dapat mereplikasi pola perekrutan historis yang bias.</li><li>Rekomendasi produk dapat membatasi pilihan berdasarkan gender.</li><li>Algoritma penilaian kredit dapat mendiskriminasi perempuan bila data historisnya bias.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">📉</span>Dampak Bias Gender</h3><ul><li>Memperkuat stereotip gender.</li><li>Menciptakan diskriminasi dan eksklusi dalam pekerjaan, kredit, kesehatan, atau layanan publik.</li><li>Menimbulkan masalah keamanan dan privasi.</li><li>Membatasi peluang karier dan pertumbuhan ekonomi.</li><li>Menurunkan kepercayaan perempuan terhadap teknologi.</li></ul></article>
+            <article class="content-card wide"><h3><span class="mini-icon">🛠️</span>Bagaimana Bias Dapat Dikurangi?</h3><ol><li><strong>Data yang beragam dan inklusif:</strong> audit data, kumpulkan representasi berbagai demografi, dan seimbangkan data yang tidak merata.</li><li><strong>Pengembangan etis:</strong> desain berpusat pada manusia, algoritma yang adil, transparansi, dan akuntabilitas.</li><li><strong>Regulasi dan kebijakan:</strong> dorong kebijakan serta standar industri yang mencegah diskriminasi.</li><li><strong>Edukasi dan kesadaran:</strong> tingkatkan pemahaman tentang keberadaan dan dampak bias gender.</li><li><strong>Keterwakilan perempuan:</strong> libatkan perempuan dalam pengumpulan data, desain, pengujian, dan evaluasi AI.</li></ol></article>
+            <article class="content-card"><h3><span class="mini-icon">👩‍💻</span>Kontribusi Perempuan</h3><ul><li>Menjadi pengembang, ilmuwan data, insinyur machine learning, atau peneliti AI.</li><li>Memimpin etika AI dan tata kelola teknologi.</li><li>Melakukan audit serta penilaian bias.</li><li>Mengadvokasi kebijakan inklusif.</li><li>Mendidik dan memberdayakan komunitas.</li><li>Memberikan umpan balik sebagai pengguna dan membangun jaringan kolaborasi.</li></ul></article>
+            <article class="content-card"><h3><span class="mini-icon">📢</span>Budaya Digital yang Adil</h3><p>Perempuan dapat berperan melalui advokasi, partisipasi aktif dalam pengembangan/pengujian/penggunaan AI, serta pendidikan kepada diri sendiri dan masyarakat.</p><p>Tim yang beragam membantu mengidentifikasi bias lebih awal, menghasilkan solusi lebih inklusif, memperkuat kepercayaan, dan mendorong inovasi.</p></article>
+          </div>
+          <div class="highlight"><strong>Pesan kunci:</strong> AI tidak otomatis netral. Data, desain, dan keputusan manusia memengaruhi hasilnya. Keterwakilan dan suara perempuan penting agar teknologi melayani keragaman masyarakat.</div>
+          <div class="activity"><h3>✍️ Praktik singkat</h3><p>Pilih satu sistem AI yang pernah Anda gunakan. Ajukan tiga pertanyaan: Siapa yang mungkin kurang terwakili dalam data? Apakah hasilnya adil bagi pengguna yang berbeda? Bagaimana pengguna dapat memberi umpan balik atau mengajukan keberatan?</p></div>
+        `
+      }
+    ];
+
+    const questions = [
+      { q:'Tindakan menyebarkan alamat rumah atau nomor telepon seseorang secara publik tanpa persetujuan disebut …', a:['Phishing','Doxing','SEO','Enkripsi'], c:1, e:'Doxing adalah pencarian dan penyebaran informasi pribadi tanpa persetujuan.' },
+      { q:'Langkah yang menambahkan lapisan keamanan selain kata sandi pada akun adalah …', a:['Menggunakan satu kata sandi untuk semua akun','Membagikan OTP kepada admin','Mengaktifkan verifikasi dua langkah (2FA)','Membuka semua tautan promosi'], c:2, e:'2FA menambahkan verifikasi kedua ketika pengguna masuk ke akun.' },
+      { q:'Manakah ciri yang patut dicurigai pada tawaran investasi online?', a:['Risiko dan biaya dijelaskan transparan','Legalitas dapat diperiksa','Menjanjikan keuntungan tetap sangat tinggi tanpa risiko','Memberi waktu untuk mempelajari produk'], c:2, e:'Janji keuntungan tinggi tanpa risiko dan tekanan untuk segera mentransfer adalah tanda bahaya.' },
+      { q:'Aplikasi pinjaman yang meminta akses berlebihan ke kontak, galeri, dan pesan ponsel perlu …', a:['Diberi semua izin agar cepat cair','Diwaspadai dan tidak diberi akses berlebihan','Dibagikan ke semua teman','Dibiarkan tanpa membaca syarat'], c:1, e:'Akses data berlebihan merupakan salah satu ciri pinjaman online ilegal dalam materi.' },
+      { q:'Platform yang disebut cocok sebagai saluran personal untuk layanan pelanggan dan promosi langsung adalah …', a:['WhatsApp Business','Aplikasi kalkulator','Pemutar musik','Galeri foto'], c:0, e:'WhatsApp Business cocok untuk komunikasi personal dan layanan pelanggan.' },
+      { q:'Dalam penggunaan AI generatif untuk pemasaran UMKM, peran manusia adalah …', a:['Menerima semua hasil AI tanpa pemeriksaan','Menyerahkan seluruh keputusan kepada AI','Memeriksa, menyunting, dan memastikan hasil relevan serta etis','Mengabaikan hak cipta'], c:2, e:'AI adalah alat bantu; hasil perlu diperiksa kualitas, orisinalitas, relevansi, dan etikanya.' },
+      { q:'Contoh praktik solidaritas digital yang tepat adalah …', a:['Menyebarkan rumor tanpa verifikasi','Mendukung korban pelecehan dan melaporkan konten berbahaya','Membagikan data pribadi korban','Menghina orang yang berbeda pendapat'], c:1, e:'Solidaritas digital mencakup dukungan moral, pelaporan pelecehan, dan edukasi.' },
+      { q:'Saat menyuarakan isu perempuan di ruang digital, narasi personal harus disampaikan dengan …', a:['Membuka identitas tanpa izin','Menyebarkan cerita orang lain tanpa persetujuan','Menjaga privasi dan memperoleh persetujuan individu','Menyertakan data sensitif agar viral'], c:2, e:'Narasi personal perlu menekankan privasi dan persetujuan individu yang kisahnya dibagikan.' },
+      { q:'Salah satu sumber bias gender dalam AI adalah …', a:['Data pelatihan yang tidak representatif','Penggunaan font yang menarik','Koneksi internet cepat','Ukuran layar perangkat'], c:0, e:'Data pelatihan yang tidak seimbang dapat membuat AI mempelajari dan mereplikasi bias.' },
+      { q:'Mengapa keterwakilan perempuan dalam pengembangan AI penting?', a:['Agar AI hanya melayani perempuan','Agar perspektif beragam membantu mengenali bias dan membangun solusi inklusif','Agar pengujian tidak diperlukan','Agar keputusan AI tidak perlu transparan'], c:1, e:'Keterlibatan perempuan membantu mengenali bias sejak dini dan menghasilkan teknologi yang lebih inklusif.' },
+      { q:'Anda menerima pesan WhatsApp: “Investasi untung 10% per minggu, aman tanpa risiko. Transfer hari ini dan kirim kode OTP untuk verifikasi.” Tindakan terbaik adalah …', a:['Transfer sedikit dulu untuk mencoba','Tidak membalas, memeriksa legalitas lewat kanal OJK, lalu memblokir dan melaporkan','Memberikan OTP karena pengirim terlihat ramah','Meneruskan ke grup arisan agar teman ikut untung'], c:1, e:'Untung tetap sangat tinggi, tekanan waktu, dan permintaan OTP adalah tanda penipuan.' },
+      { q:'Seseorang mengancam menyebarkan foto pribadi Anda jika tidak mengirim uang. Langkah paling tepat adalah …', a:['Segera membayar agar foto tidak tersebar','Menghapus semua percakapan agar tidak ada jejak','Menyimpan bukti, tidak membayar, melapor ke platform dan pihak berwenang, serta mencari pendampingan','Mengancam balik pelaku'], c:2, e:'Membayar jarang menghentikan pemerasan; bukti dan pelaporan justru memperkuat penanganan.' },
+      { q:'Teman Anda menjadi korban penyebaran foto intim tanpa izin dan bertanya apakah ini salahnya. Respons yang tepat adalah …', a:['Meyakinkan bahwa pelaku yang bertanggung jawab, membantu menyimpan bukti, dan menemani mencari bantuan','Mengatakan ia kurang berhati-hati','Membagikan ulang foto untuk “membuktikan” kasusnya','Menyuruhnya diam agar tidak malu'], c:0, e:'KBGO bukan salah korban. Dukungan tanpa menyalahkan dan penyimpanan bukti sangat membantu.' },
+      { q:'Anda memakai AI untuk membuat deskripsi produk. Praktik yang paling bertanggung jawab adalah …', a:['Menyalin hasilnya tanpa dibaca agar cepat','Memasukkan daftar nomor telepon pelanggan agar dipersonalisasi','Memeriksa fakta dan klaim, menyunting sesuai merek, dan tidak memasukkan data pribadi pelanggan','Memakai gambar hasil AI yang menyerupai produk pesaing'], c:2, e:'Manusia bertanggung jawab atas akurasi, etika, dan pelindungan data.' },
+      { q:'Alat seleksi berbasis AI di sebuah perusahaan lebih sering menolak pelamar perempuan. Penjelasan dan langkah yang paling masuk akal adalah …', a:['Itu pasti kebetulan sehingga tidak perlu diperiksa','Data historis mungkin bias; perlu audit data dan hasil serta pengawasan manusia','Perempuan memang kurang cocok sehingga algoritma benar','Cukup mengganti warna antarmuka'], c:1, e:'Bias dapat berasal dari data pelatihan; audit dan pengawasan manusia diperlukan.' }
+    ];
+
+    const STORAGE_KEY = 'digitalCerdasPerempuanBerdaya_v1';
+    let state = { step:0, name:'', completed:[false,false,false,false,false], answers:{}, submitted:false, score:null, passed:false, lastOk:false, correct:0, best:0, certDate:'', notes:{}, checks:{} };
+    const $ = (s) => document.querySelector(s);
+    const screens = ['home-screen','module-screen','quiz-screen','result-screen','certificate-screen'];
+
+    function safeText(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+    function saveState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* local storage may be unavailable */ }
+    }
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const stored = JSON.parse(raw);
+        if (stored && Array.isArray(stored.completed) && stored.completed.length === 5) {
+          state = { ...state, ...stored };
+          if (state.step === 7) state.step = 6;
+          if (![0,1,2,3,4,5,6,8].includes(state.step)) state.step = 0;
+        }
+      } catch (e) { /* ignore invalid or unavailable storage */ }
+    }
+    function showToast(message) {
+      const toast = $('#toast'); toast.textContent = message; toast.classList.add('show');
+      clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+    function progressPercent() {
+      const modulePart = state.completed.filter(Boolean).length / 5 * 70;
+      return Math.round(modulePart + (state.passed ? 30 : 0));
+    }
+    function updateProgress() {
+      const done = state.completed.filter(Boolean).length;
+      const pct = progressPercent();
+      $('#progressFill').style.width = pct + '%';
+      $('#progressText').textContent = pct + '%';
+      $('#topProgress').textContent = pct + '% selesai';
+      $('#progressDetail').textContent = `${done} dari 5 modul selesai${state.passed ? ' • evaluasi lulus' : ''}`;
+      document.querySelectorAll('.nav-list .nav-item').forEach(btn => {
+        const n = Number(btn.dataset.step);
+        btn.classList.toggle('active', n === state.step || (state.step === 7 && n === 6));
+        btn.setAttribute('aria-current', btn.classList.contains('active') ? 'step' : 'false');
+        if (n >= 1 && n <= 5) {
+          btn.classList.toggle('done', state.completed[n-1]);
+          btn.querySelector('.nav-number').textContent = state.completed[n-1] ? '✓' : String(n).padStart(2,'0');
+        }
+        if (n === 6) btn.disabled = !state.completed.every(Boolean);
+        if (n === 8) btn.disabled = !state.passed;
+      });
+    }
+    function activateScreen(id) {
+      screens.forEach(s => $('#' + s).classList.toggle('active', s === id));
+      window.scrollTo({ top:0, behavior:'smooth' });
+    }
+    function render() {
+      const s = state.step;
+      updateProgress(); saveState();
+      if (s === 0) { activateScreen('home-screen'); $('#learnerName').value = state.name; }
+      else if (s >= 1 && s <= 5) { renderModule(s-1); activateScreen('module-screen'); }
+      else if (s === 6) { renderQuiz(); activateScreen('quiz-screen'); }
+      else if (s === 7) { renderResult(); activateScreen('result-screen'); }
+      else if (s === 8) { renderCertificate(); activateScreen('certificate-screen'); }
+    }
+    function renderModule(index) {
+      const m = modules[index];
+      $('#moduleKicker').textContent = `Modul 0${index+1} • ${m.short}`;
+      $('#moduleTitle').textContent = m.title;
+      $('#moduleIntro').textContent = m.intro;
+      $('#moduleIcon').textContent = m.icon;
+      $('#moduleContent').innerHTML = m.content + (extras[index] || '') + reflection(index); bindExtras();
+      $('#moduleStepIndicator').textContent = `Modul ${index+1} dari 5`;
+      const done = state.completed[index];
+      $('#completionState').classList.toggle('done', done);
+      $('#completionState').innerHTML = done ? '<span>✓</span><span>Modul sudah ditandai selesai</span>' : '<span>○</span><span>Modul belum ditandai selesai</span>';
+      $('#markDoneBtn').classList.toggle('success', done);
+      $('#markDoneBtn').textContent = done ? 'Modul Selesai ✓' : 'Tandai Modul Selesai ✓';
+      $('#backModuleBtn').disabled = index === 0;
+      $('#backModuleBtn').style.visibility = index === 0 ? 'hidden' : 'visible';
+      $('#nextModuleBtn').textContent = index === 4 ? 'Lanjut ke Evaluasi →' : 'Lanjut →'; startGate(index);
+    }
+    function markModuleDone(index) {
+      state.completed[index] = true; saveState(); updateProgress();
+      $('#completionState').classList.add('done'); $('#completionState').style.color = '';
+      $('#completionState').innerHTML = '<span>✓</span><span>Modul sudah ditandai selesai</span>';
+      $('#markDoneBtn').classList.add('success'); $('#markDoneBtn').textContent = 'Modul Selesai ✓';
+      showToast('Modul berhasil ditandai selesai.');
+    }
+    function renderQuiz() {
+      const host = $('#questionsContainer');
+      host.innerHTML = questions.map((q,i) => `
+        <fieldset class="question">
+          <legend class="q-num">Pertanyaan ${i+1} dari ${questions.length}</legend>
+          <h3>${q.q}</h3>
+          <div class="options">${q.a.map((a,j) => `<label class="option"><input type="radio" name="q${i}" value="${j}" ${String(state.answers[i])===String(j)?'checked':''}><span>${String.fromCharCode(65+j)}. ${a}</span></label>`).join('')}</div>
+        </fieldset>`).join('');
+    }
+    function submitQuiz(event) {
+      event.preventDefault();
+      const answers = {};
+      questions.forEach((q,i) => {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (selected) answers[i] = Number(selected.value);
+      });
+      if (Object.keys(answers).length !== questions.length) {
+        showToast(`Lengkapi semua pertanyaan. Baru ${Object.keys(answers).length} dari ${questions.length} terjawab.`);
+        document.querySelectorAll('.question').forEach((el,i) => el.classList.toggle('missing', answers[i] === undefined));
+        const firstMissing = questions.findIndex((q,i) => answers[i] === undefined);
+        const target = document.querySelectorAll('.question')[firstMissing];
+        if (target) target.scrollIntoView({behavior:'smooth',block:'center'});
+        return;
+      }
+      state.answers = answers;
+      const correct = questions.filter((q,i) => answers[i] === q.c).length;
+      state.correct = correct; state.score = Math.round(correct / questions.length * 100); state.best = Math.max(state.best || 0, state.score);
+      state.lastOk = state.score >= 70; if (state.lastOk) { state.passed = true; if (!state.certDate) state.certDate = new Date().toISOString(); }
+      state.submitted = true;
+      state.step = 7;
+      saveState(); render();
+    }
+    function renderResult() {
+      const passed = state.lastOk;
+      const correct = state.correct || 0;
+      $('#resultHero').classList.toggle('fail', !passed);
+      $('#resultIcon').textContent = passed ? '🏆' : '↻';
+      $('#resultTitle').textContent = passed ? 'Luar Biasa, Anda Lulus!' : 'Tetap Semangat, Coba Lagi!';
+      $('#resultScore').textContent = `${state.score ?? 0}`;
+      $('#resultMessage').textContent = passed ? 'Anda telah memenuhi nilai minimal evaluasi. Sertifikat penyelesaian pembelajaran sudah dapat dicetak.' : 'Nilai Anda belum mencapai batas kelulusan 70. Tinjau kembali materi yang belum dikuasai, kemudian ulangi evaluasi.';
+      $('#correctCount').textContent = `${correct}/${questions.length}`;
+      $('#passStatus').textContent = passed ? 'Lulus' : 'Belum lulus';
+      $('#getCertificateBtn').classList.toggle('hidden', !state.passed);
+      $('#resultReview').innerHTML = `<h3 style="font-size:15px;margin:0 0 10px">Pembahasan jawaban</h3>` + questions.map((q,i) => {
+        const isCorrect = state.answers[i] === q.c;
+        return `<div class="question" style="padding:14px;margin:8px 0"><div style="font-size:12px;font-weight:800;color:${isCorrect?'var(--success)':'var(--danger)'}">${isCorrect?'✓ Benar':'✕ Belum tepat'} • Soal ${i+1}</div><div style="font-size:12px;margin-top:3px">${q.q}</div><div class="explanation"><strong>Jawaban:</strong> ${q.a[q.c]}<br>${q.e}</div></div>`;
+      }).join('');
+    }
+    function renderCertificate() {
+      $('#certName').textContent = state.name || 'Nama Peserta';
+      const d = new Date(state.certDate || Date.now());
+      $('#certDate').textContent = 'Diberikan pada tanggal ' + d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+      const ymd = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+      $('#certCode').textContent = 'KODE VERIFIKASI: DCPB-' + ymd + '-' + hash((state.name||'').trim().toLowerCase() + '|' + ymd + '|' + (state.best||0));
+    }
+
+    $('#startBtn').addEventListener('click', () => {
+      const name = $('#learnerName').value.trim();
+      if (!name) { showToast('Silakan isi nama lengkap peserta terlebih dahulu.'); $('#learnerName').focus(); return; }
+      state.name = name; state.step = 1; saveState(); render();
+    });
+    $('#learnerName').addEventListener('keydown', e => { if (e.key === 'Enter') $('#startBtn').click(); });
+    $('#markDoneBtn').addEventListener('click', () => markModuleDone(state.step-1));
+    $('#nextModuleBtn').addEventListener('click', () => {
+      const index = state.step-1;
+      if (!state.completed[index]) { const cs = $('#completionState'); cs.innerHTML = '<span>⚠</span><span>Baca materi, lalu tekan “Tandai Modul Selesai” sebelum melanjutkan.</span>'; cs.style.color = 'var(--danger)'; cs.scrollIntoView({behavior:'smooth', block:'center'}); showToast('Tandai modul selesai dulu sebelum lanjut.'); return; }
+      if (index < 4) state.step += 1;
+      else if (state.completed.every(Boolean)) state.step = 6;
+      saveState(); render();
+    });
+    $('#backModuleBtn').addEventListener('click', () => { if (state.step > 1) { state.step -= 1; render(); } });
+    $('#backQuizBtn').addEventListener('click', () => { state.step = 5; render(); });
+    $('#quizForm').addEventListener('submit', submitQuiz);
+    $('#submitQuizBtn').addEventListener('click', submitQuiz);
+    $('#questionsContainer').addEventListener('change', e => { const q = e.target.closest('.question'); if (q) q.classList.remove('missing'); });
+    $('#reviewModulesBtn').addEventListener('click', () => { state.step = 1; render(); });
+    $('#retryQuizBtn').addEventListener('click', () => { state.answers = {}; state.submitted = false; state.step = 6; render(); });
+    $('#getCertificateBtn').addEventListener('click', () => { if (state.passed) { state.step = 8; render(); } });
+    $('#backResultBtn').addEventListener('click', () => { state.step = 7; render(); });
+    $('#printCertificateBtn').addEventListener('click', () => { try { window.print(); } catch (e) {} showToast('Jika jendela cetak tidak muncul, buka file ini langsung di browser (Chrome/Edge) lalu tekan Ctrl+P.'); });
+    $('#resetBtn').addEventListener('click', () => {
+      const rb = $('#resetBtn');
+      if (!rb.dataset.armed) { rb.dataset.armed = '1'; rb.textContent = 'Yakin? Klik lagi untuk reset'; showToast('Klik sekali lagi untuk menghapus semua progres, jawaban, dan identitas.'); setTimeout(() => { delete rb.dataset.armed; rb.textContent = '↻ Reset Progres Belajar'; }, 4000); return; }
+      delete rb.dataset.armed; rb.textContent = '↻ Reset Progres Belajar';
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore unavailable storage */ }
+      state = { step:0, name:'', completed:[false,false,false,false,false], answers:{}, submitted:false, score:null, passed:false, lastOk:false, correct:0, best:0, certDate:'', notes:{}, checks:{} };
+      render(); showToast('Progres pembelajaran telah direset.');
+    });
+    document.querySelectorAll('.nav-list .nav-item').forEach(btn => btn.addEventListener('click', () => {
+      const step = Number(btn.dataset.step);
+      if (btn.disabled) return;
+      if (step === 0) { state.step = 0; render(); }
+      else if (step >= 1 && step <= 5) { state.step = step; render(); }
+      else if (step === 6 && state.completed.every(Boolean)) { state.step = 6; render(); }
+      else if (step === 8 && state.passed) { state.step = 8; render(); }
+    }));
+
+    const CONTACTS = ['KONTAK BANTUAN (periksa situs resmi untuk kontak terbaru)','',
+      'SAPA 129 (KemenPPPA): telepon 129','OJK: 157 | konsumen.ojk.go.id','Patroli Siber: patrolisiber.id','Aduan Konten Komdigi: aduankonten.id',
+      'Cek rekening penipu: cekrekening.id','SAFEnet (aduan KBGO): safenet.or.id','Komnas Perempuan: komnasperempuan.go.id',
+      'LBH APIK: lbhapik.or.id','Yayasan Pulih: pulih.or.id','StopNCII: stopncii.org'].join('\n');
+    const L = (u,n) => `<a href="https://${u}" target="_blank" rel="noopener">${n||u}</a>`;
+    const extras = [
+      `<div class="content-grid" style="margin-top:14px">
+        <article class="content-card"><h3><span class="mini-icon">🎭</span>Deepfake, Konten Intim Tanpa Izin & Sextortion</h3>
+          <ul><li><strong>Deepfake:</strong> wajah Anda ditempel ke foto/video palsu, termasuk yang bersifat intim.</li><li><strong>NCII:</strong> penyebaran konten intim tanpa persetujuan.</li><li><strong>Sextortion:</strong> pemerasan dengan ancaman menyebarkan konten.</li></ul>
+          <p><strong>Jika terjadi:</strong> jangan membayar dan jangan menghapus bukti. Simpan tangkapan layar dan tautan, laporkan ke platform, lalu hubungi lembaga bantuan. Untuk konten intim yang masih Anda simpan, ${L('stopncii.org','StopNCII.org')} dapat membantu mencegah penyebarannya. <strong>Anda bukan pihak yang bersalah.</strong></p></article>
+        <article class="content-card"><h3><span class="mini-icon">⚖️</span>Dasar Hukum</h3>
+          <ul><li><strong>UU TPKS (UU No. 12 Tahun 2022):</strong> mengatur kekerasan seksual, termasuk yang berbasis elektronik.</li><li><strong>UU PDP (UU No. 27 Tahun 2022):</strong> hak atas pelindungan data pribadi.</li><li><strong>UU ITE</strong> beserta perubahannya: aturan transaksi dan konten elektronik.</li></ul>
+          <p class="muted">Informasi umum, bukan nasihat hukum. Untuk kasus Anda, konsultasikan dengan LBH atau pendamping hukum.</p></article>
+        <article class="content-card wide"><h3><span class="mini-icon">📞</span>Kartu Kontak Bantuan</h3>
+          <ul><li><strong>SAPA 129 (KemenPPPA):</strong> telepon 129</li><li>${L('safenet.or.id','SAFEnet')} (aduan KBGO) • ${L('komnasperempuan.go.id','Komnas Perempuan')} • ${L('lbhapik.or.id','LBH APIK')} • ${L('pulih.or.id','Yayasan Pulih')}</li><li>${L('patrolisiber.id')} • ${L('aduankonten.id')}</li></ul>
+          <p class="muted">Kontak dapat berubah; periksa situs resmi masing-masing.</p>
+          <button type="button" class="btn outline" id="dlContacts" style="margin-top:8px">⬇ Simpan kartu kontak (.txt)</button></article>
+      </div>
+      <div class="activity chk"><h3>✅ Checklist Privasi Saya</h3>
+        <label><input type="checkbox" data-k="p1">Akun media sosial saya sudah privat dan daftar pengikut saya periksa.</label>
+        <label><input type="checkbox" data-k="p2">Verifikasi dua langkah (2FA) aktif di email dan akun penting.</label>
+        <label><input type="checkbox" data-k="p3">Lokasi dan info pribadi tidak tampil di unggahan maupun bio.</label>
+        <label><input type="checkbox" data-k="p4">Sandi saya panjang, unik, dan disimpan di pengelola kata sandi.</label>
+        <label><input type="checkbox" data-k="p5">Kontak bantuan sudah saya simpan di ponsel.</label>
+        <p class="chk-count"></p></div>`,
+      `<div class="sim"><h3>🧪 Simulasi: Periksa Pesan Ini</h3>
+        <div class="msg">“Halo Kak, investasi kami untung <strong>10% per minggu</strong>, <strong>aman tanpa risiko</strong>! Slot tinggal hari ini. Kirim <strong>kode OTP</strong> untuk verifikasi ya.”</div>
+        <div class="opts">
+          <button type="button" data-m="Belum tepat. Mencoba dengan nominal kecil sering menjadi pintu masuk; skema penipuan biasanya meminta setoran lebih besar setelah korban percaya.">Transfer sedikit dulu untuk mencoba</button>
+          <button type="button" data-ok="1" data-m="Tepat! Untung tetap sangat tinggi, tanpa risiko, tekanan waktu, dan permintaan OTP adalah tanda bahaya. Jangan membalas, cek legalitas lewat OJK, blokir, dan laporkan.">Tidak membalas, cek legalitas lewat OJK, lalu blokir dan laporkan</button>
+          <button type="button" data-m="Berbahaya. OTP adalah kunci akun Anda dan tidak boleh diberikan kepada siapa pun.">Memberikan OTP agar cepat selesai</button>
+          <button type="button" data-m="Jangan. Meneruskan pesan penipuan dapat membuat teman Anda menjadi korban.">Membagikan ke grup arisan</button>
+        </div><div class="sim-out" role="status"></div></div>
+      <div class="content-grid" style="margin-top:14px"><article class="content-card wide"><h3><span class="mini-icon">🔗</span>Cek Legalitas Sebelum Percaya</h3>
+        <ul><li>OJK (kontak 157): ${L('ojk.go.id')} untuk memeriksa pinjol dan platform berizin; Satgas PASTI menangani aktivitas keuangan ilegal.</li><li>${L('cekrekening.id')}: cek apakah rekening pernah dilaporkan untuk penipuan.</li><li>${L('patrolisiber.id')}: lapor penipuan online.</li></ul></article></div>`,
+      `<div class="content-grid" style="margin-top:14px"><article class="content-card wide"><h3><span class="mini-icon">🔒</span>Etika & Keamanan Data saat Memakai AI</h3>
+        <ul><li>Jangan memasukkan nomor telepon, alamat, atau data pelanggan ke alat AI; ringkas atau samarkan dahulu.</li><li>Periksa fakta, harga, dan klaim produk sebelum dipublikasikan.</li><li>Beri tahu pelanggan jika konten dibuat dengan bantuan AI bila relevan, dan hindari meniru karya atau merek pihak lain.</li><li>Gunakan akun resmi dan aktifkan 2FA pada alat yang Anda pakai.</li></ul></article></div>`,
+      '',
+      `<div class="content-grid" style="margin-top:14px"><article class="content-card wide"><h3><span class="mini-icon">🛑</span>AI yang Disalahgunakan terhadap Perempuan</h3>
+        <ul><li>Hindari mengunggah foto pribadi ke aplikasi tak dikenal, terutama aplikasi tukar wajah atau “edit foto” yang tidak jelas pengembangnya.</li><li>Foto publik dapat disalahgunakan untuk deepfake; batasi unggahan wajah beresolusi tinggi pada akun terbuka.</li><li>Jika menjadi sasaran, simpan bukti, laporkan ke platform dan pihak berwenang, serta gunakan Kartu Kontak Bantuan pada Modul 1.</li></ul></article></div>`
+    ];
+    function reflection(i){ return `<div class="activity"><h3>📝 Komitmen Aksi Saya</h3><textarea id="noteBox" rows="3" aria-label="Komitmen aksi" placeholder="Tuliskan satu langkah nyata yang akan Anda lakukan minggu ini…">${safeText((state.notes||{})[i]||'')}</textarea><p>Tersimpan otomatis di perangkat ini.</p></div>`; }
+    function bindExtras(){
+      const i = state.step-1; state.notes = state.notes || {}; state.checks = state.checks || {};
+      const noteBox = $('#noteBox');
+      if (noteBox) {
+        noteBox.addEventListener('input', e => { state.notes[i] = e.target.value; saveState(); });
+      }
+      document.querySelectorAll('.sim .opts button').forEach(b => b.addEventListener('click', () => { const o = b.closest('.sim').querySelector('.sim-out'); o.className = 'sim-out ' + (b.dataset.ok ? 'ok' : 'no'); o.textContent = b.dataset.m; }));
+      const cs = document.querySelectorAll('.chk input'), upd = () => { const el = $('.chk-count'); if (el) el.textContent = `${[...cs].filter(c => c.checked).length} dari ${cs.length} langkah selesai`; };
+      cs.forEach(c => { c.checked = !!state.checks[c.dataset.k]; c.addEventListener('change', () => { state.checks[c.dataset.k] = c.checked; saveState(); upd(); }); }); upd();
+      const d = $('#dlContacts'); if (d) d.addEventListener('click', () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([CONTACTS], {type:'text/plain;charset=utf-8'})); a.download = 'kontak-bantuan.txt'; a.click(); });
+    }
+    let gate;
+    function startGate(i){
+      clearInterval(gate); const b = $('#markDoneBtn');
+      if (state.completed[i]) { b.disabled = false; return; }
+      $('#completionState').style.color = ''; let n = 10; b.disabled = true; b.textContent = `Baca dulu… (${n}s)`;
+      gate = setInterval(() => { n--; if (n <= 0) { clearInterval(gate); b.disabled = false; b.textContent = 'Tandai Modul Selesai ✓'; } else b.textContent = `Baca dulu… (${n}s)`; }, 1000);
+    }
+    function hash(s){ let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36).toUpperCase().padStart(7,'0'); }
+
+    const FK = 'dcpb_big';
+    try { if (localStorage.getItem(FK) === '1') document.documentElement.classList.add('big'); } catch (e) {}
+    $('#fontBtn').addEventListener('click', () => { const on = document.documentElement.classList.toggle('big'); try { localStorage.setItem(FK, on ? '1' : '0'); } catch (e) {} });
+
+    loadState();
+    if (state.name) $('#learnerName').value = state.name;
+
+    render();
+  </script>
+</body>
+</html>
